@@ -1,0 +1,23 @@
+name: Build Aimbot
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate Project
+        run: xcodegen generate
+      - name: Build
+        run: |
+          xcodebuild -project HyzzFFZ.xcodeproj -scheme HyzzFFZ -sdk iphoneos -configuration Release CODE_SIGNING_ALLOWED=NO build
+      - name: Package IPA
+        run: |
+          mkdir Payload
+          cp -R build/Release-iphoneos/HyzzFFZ.app Payload/
+          zip -r HyzzFFZ.ipa Payload/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HyzzFFZ
+          path: HyzzFFZ.ipa
